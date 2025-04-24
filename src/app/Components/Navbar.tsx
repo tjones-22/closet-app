@@ -1,41 +1,136 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-const Navbar = () => {
-  return (
-    <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.5 }}
-        className="nav-background checkered-background  flex flex-row justify-around items-center w-full h-[20vh]  bg-yellow-300 text-blue-600 text-[60px] rounded-md border-b-2 border-blue-600"
-      >
-        <h1 className="ml-auto"> Your Closet</h1>
+import { useState, useEffect } from "react";
 
-        <form className="flex flex-row items-center justify-evenly gap-4 text-xl w-1/3 h-[20vh] bg-blue-950 text-yellow-200 p-4 ml-auto rounded">
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            required
-            className="bg-white text-black rounded px-4 py-2 w-full max-w-[150px] "
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-            className="bg-white text-black rounded px-4 py-2 w-full max-w-[150px]"
-          />
-          <Link href="/signup">
-            <span className="text-yellow-100 hover:underline cursor-pointer text-4xl">
-              Signup
+const Navbar = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  // ✅ Ensure this code only runs after the component has mounted (client-side)
+  useEffect(() => {
+    setHasHydrated(true);
+    const storedId = sessionStorage.getItem("userId");
+    const storedUsername = sessionStorage.getItem("username");
+
+    if (storedId && storedUsername) {
+      setUserId(storedId);
+      setUsername(storedUsername);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("https://6ptjrzac72.execute-api.us-east-2.amazonaws.com/user/login", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        sessionStorage.setItem("userId", data.userId);
+        sessionStorage.setItem("username", username);
+        setUserId(data.userId);
+        setIsLoggedIn(true);
+        alert(`Welcome, ${username}!`);
+      } else {
+        alert(data.error || "Login failed");
+      }
+    } catch (err) {
+      alert("Login request failed");
+      console.error(err);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch("https://6ptjrzac72.execute-api.us-east-2.amazonaws.com/user/signout", {
+        method: "PUT",
+      });
+
+      sessionStorage.removeItem("userId");
+      sessionStorage.removeItem("username");
+      setUserId(null);
+      setUsername("");
+      setPassword("");
+      setIsLoggedIn(false);
+      alert("You have been signed out.");
+    } catch (err) {
+      console.error("Sign out failed", err);
+      alert("Sign out request failed.");
+    }
+  };
+
+  // ✅ Prevent hydration mismatch by delaying rendering until mounted
+  if (!hasHydrated) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1.5 }}
+      className="nav-background checkered-background flex flex-row justify-around items-center w-full h-[20vh] bg-yellow-300 text-blue-600 text-[60px] rounded-md border-b-2 border-blue-600"
+    >
+      <h1 className="ml-auto">Your Closet</h1>
+
+      <div className="flex flex-col items-end justify-center gap-2 text-xl w-1/3 h-[20vh] bg-blue-950 text-yellow-200 p-4 ml-auto rounded">
+        {!isLoggedIn ? (
+          <form className="flex flex-row gap-4 items-center" onSubmit={handleLogin}>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="bg-white text-black rounded px-4 py-2 w-full max-w-[150px]"
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="bg-white text-black rounded px-4 py-2 w-full max-w-[150px]"
+            />
+            <button
+              type="submit"
+              className="text-yellow-100 text-2xl hover:underline"
+            >
+              Login
+            </button>
+            <Link href="/signup">
+              <span className="text-yellow-100 hover:underline cursor-pointer text-2xl">
+                Signup
+              </span>
+            </Link>
+          </form>
+        ) : (
+          <div className="flex flex-col items-end text-right gap-2">
+            <span className="text-yellow-200 text-2xl">
+              Welcome, <strong>{username}</strong>
             </span>
-          </Link>
-        </form>
-      </motion.div>
-    </>
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 hover:bg-red-500 px-4 py-2 rounded text-white text-base"
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
+      </div>
+    </motion.div>
   );
 };
 
