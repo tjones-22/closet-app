@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import Navbar from "./Components/Navbar";
+import ClosetItems from "./Components/ClosetItems";
 import { useState } from "react";
 
 export default function Home() {
@@ -49,6 +50,11 @@ export default function Home() {
           Make Outfit
         </button>
         </Link>
+      </div>
+
+
+      <div>
+        {buttonSelector === 1 && <ClosetItems />}
       </div>
     </>
   );
