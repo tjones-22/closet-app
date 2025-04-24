@@ -12,3 +12,7 @@
   background-image: url('./public/YellowBackground.jpeg');
 
 }
+
+.animation{
+  transition:0.4s
+}
