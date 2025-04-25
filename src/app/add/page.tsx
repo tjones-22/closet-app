@@ -34,7 +34,7 @@ const Home = () => {
 
     // Convert image to base64 string
     const imageBase64 = await compressImage(imageFile);
-    
+
     try {
       const res = await fetch(
         `https://6ptjrzac72.execute-api.us-east-2.amazonaws.com/users/${userId}/closet`,

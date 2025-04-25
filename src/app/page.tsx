@@ -3,6 +3,7 @@ import Link from "next/link";
 import Navbar from "./Components/Navbar";
 import ClosetItems from "./Components/ClosetItems";
 import { useState } from "react";
+import Outfits from "./Components/Outfits";
 
 export default function Home() {
   const [buttonSelector, setButtonSelector] = useState(-1);
@@ -55,6 +56,7 @@ export default function Home() {
 
       <div>
         {buttonSelector === 1 && <ClosetItems />}
+        {buttonSelector === 2 && <Outfits />}
       </div>
     </>
   );
