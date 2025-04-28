@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { motion } from "framer-motion";
 
@@ -26,45 +26,49 @@ type OutfitModalProps = {
 const OutfitModal: React.FC<OutfitModalProps> = ({ outfit, onClose }) => {
   return (
     <>
-      {/* Dark overlay */}
+      {/* Dark Overlay */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+        className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"
         onClick={onClose}
       />
 
-      {/* Modal content */}
+      {/* Modal Content */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center"
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
-        <div className="bg-white rounded-lg shadow-lg p-6 max-w-3xl w-[90%] overflow-auto max-h-[90vh] relative">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-4xl w-full overflow-auto max-h-[90vh] relative border-2 border-blue-900">
+          {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-600 transition"
+            className="absolute top-3 right-3 bg-red-600 hover:bg-red-500 text-white w-9 h-9 flex items-center justify-center rounded-full font-bold text-lg transition"
             aria-label="Close Modal"
           >
             &times;
           </button>
 
-          <h2 className="text-2xl font-bold text-blue-900 mb-2 text-center">
+          {/* Outfit Name and Description */}
+          <h2 className="text-3xl font-bold text-blue-900 text-center mb-2 underline">
             {outfit.name}
           </h2>
-          <p className="text-center text-gray-600 mb-6">{outfit.description}</p>
+          <p className="text-center text-gray-600 text-lg mb-6 italic">{outfit.description}</p>
 
+          {/* Closet Items Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {outfit.items.map((item) => (
               <div
                 key={item.itemId}
-                className="border rounded-md p-4 bg-gray-50 shadow-sm"
+                className="border border-blue-200 rounded-xl p-4 bg-blue-50 hover:bg-blue-100 shadow-md transition"
               >
                 <img
                   src={item.image || "/placeholder.png"}
                   alt={item.type}
-                  className="w-full h-40 object-cover rounded-md mb-3"
+                  className="w-full h-40 object-cover rounded-lg mb-4"
                 />
-                <h3 className="font-semibold text-blue-900">{item.type}</h3>
+                <h3 className="text-lg font-bold text-blue-800">{item.type}</h3>
                 <p className="text-sm text-gray-700">Color: {item.color}</p>
                 <p className="text-sm text-gray-700">Style: {item.style}</p>
                 <p className="text-sm text-gray-700">Occasion: {item.occasion}</p>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Notification from "@/app/Components/Notification";
 
 type ClosetItem = {
   image: string;
@@ -15,6 +16,8 @@ const ClosetItems = () => {
   const [items, setItems] = useState<ClosetItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
@@ -29,6 +32,8 @@ const ClosetItems = () => {
         setItems(data.items || []);
       } catch (err) {
         console.error("Failed to fetch closet items", err);
+        setNotificationMessage("Failed to fetch closet items.");
+        setShowNotification(true);
       } finally {
         setLoading(false);
       }
@@ -47,7 +52,11 @@ const ClosetItems = () => {
 
   const deleteItem = async (itemId: string) => {
     const userId = sessionStorage.getItem("userId");
-    if (!userId) return;
+    if (!userId) {
+      setNotificationMessage("You must be logged in to delete an item.");
+      setShowNotification(true);
+      return;
+    }
 
     const confirmDelete = window.confirm("Are you sure you want to delete this item?");
     if (!confirmDelete) return;
@@ -60,14 +69,16 @@ const ClosetItems = () => {
 
       if (res.ok) {
         setItems((prev) => prev.filter((item) => item.itemId !== itemId));
-        setCurrentIndex(0); // Reset to first item
-        alert("Item deleted successfully!");
+        setCurrentIndex(0);
+        setNotificationMessage("Item deleted successfully!");
       } else {
-        alert("Failed to delete item.");
+        setNotificationMessage("Failed to delete item. Please try again.");
       }
     } catch (err) {
       console.error("Error deleting item", err);
-      alert("Error deleting item.");
+      setNotificationMessage("An error occurred while deleting the item.");
+    } finally {
+      setShowNotification(true);
     }
   };
 
@@ -80,22 +91,32 @@ const ClosetItems = () => {
   };
 
   if (loading) {
-    return <p className="text-center mt-10">Loading closet items...</p>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-blue-50">
+        <p className="text-2xl font-bold text-blue-800 animate-pulse">Loading closet items...</p>
+      </div>
+    );
   }
 
   if (items.length === 0) {
-    return <p className="text-center mt-10">No items in your closet yet.</p>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-blue-50">
+        <p className="text-xl font-semibold text-gray-500">No items in your closet yet.</p>
+      </div>
+    );
   }
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center">
-      <h1 className="text-3xl font-bold mt-6 mb-2 text-blue-900">Your Closet</h1>
+    <div className="relative w-full h-full flex flex-col items-center px-6 py-8 bg-blue-50 min-h-screen">
+      <h1 className="text-4xl font-extrabold text-blue-900 underline mb-8">
+        Your Closet
+      </h1>
 
-      <div className="relative w-full max-w-[90%] h-[500px] flex items-center justify-center overflow-hidden mt-4">
+      <div className="relative w-full max-w-5xl h-[550px] flex items-center justify-center overflow-hidden mt-6">
         {items.length > 1 && (
           <button
             onClick={moveLeft}
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-300 p-3 rounded-full shadow-md hover:bg-gray-400 transition z-20"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-blue-900 text-yellow-300 p-3 rounded-full hover:bg-blue-700 shadow-md transition"
           >
             {"<"}
           </button>
@@ -108,19 +129,19 @@ const ClosetItems = () => {
               return (
                 <motion.div
                   key={item.itemId}
-                  className="absolute w-[300px] h-[430px] p-6 bg-white rounded-lg shadow-md transition-all duration-500 flex flex-col justify-between"
+                  className="absolute w-[320px] h-[480px] p-6 bg-white rounded-2xl shadow-2xl transition-all duration-500 flex flex-col justify-between hover:scale-105 cursor-pointer"
                   style={{ transform: `scale(${scale})`, zIndex, opacity }}
                 >
                   <div>
                     <img
                       src={item.image || "/placeholder.png"}
                       alt={item.type}
-                      className="w-full h-[200px] object-cover rounded-md mb-4"
+                      className="w-full h-[220px] object-cover rounded-lg mb-4"
                     />
-                    <h2 className="text-lg font-bold text-center mb-1">
+                    <h2 className="text-xl font-bold text-center text-blue-800">
                       {item.type.toUpperCase()}
                     </h2>
-                    <p className="text-center text-gray-600 text-sm">
+                    <p className="text-center text-gray-600 text-sm mt-2">
                       Color: {item.color}
                     </p>
                     <p className="text-center text-gray-600 text-sm">
@@ -130,7 +151,7 @@ const ClosetItems = () => {
 
                   <button
                     onClick={() => deleteItem(item.itemId)}
-                    className="mt-4 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md transition w-full"
+                    className="mt-4 bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded-lg w-full transition"
                   >
                     Delete Item
                   </button>
@@ -143,20 +164,20 @@ const ClosetItems = () => {
         {items.length > 1 && (
           <button
             onClick={moveRight}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-300 p-3 rounded-full shadow-md hover:bg-gray-400 transition z-20"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-blue-900 text-yellow-300 p-3 rounded-full hover:bg-blue-700 shadow-md transition"
           >
             {">"}
           </button>
         )}
 
-        <div className="absolute bottom-[-40px] flex gap-3 justify-center w-full z-10">
+        <div className="absolute bottom-[-50px] flex gap-2 justify-center w-full">
           {items.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`w-4 h-4 rounded-full transition duration-300 border-2 ${
+              className={`w-4 h-4 rounded-full transition border-2 ${
                 index === currentIndex
-                  ? "bg-blue-600 border-blue-800"
+                  ? "bg-yellow-300 border-blue-800"
                   : "bg-white border-gray-400"
               }`}
               aria-label={`Go to item ${index + 1}`}
@@ -164,6 +185,13 @@ const ClosetItems = () => {
           ))}
         </div>
       </div>
+
+      {showNotification && (
+        <Notification
+          message={notificationMessage}
+          onClose={() => setShowNotification(false)}
+        />
+      )}
     </div>
   );
 };

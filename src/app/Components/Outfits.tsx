@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import OutfitModal from "@/app/Components/OutfitModal";
+import Notification from "@/app/Components/Notification";
 
 type Outfit = {
   outfitId: string;
@@ -23,6 +24,8 @@ const Outfits = () => {
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [selectedOutfit, setSelectedOutfit] = useState<Outfit | null>(null);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
@@ -37,6 +40,8 @@ const Outfits = () => {
         setOutfits(data.outfits || []);
       } catch (err) {
         console.error("Failed to fetch outfits", err);
+        setNotificationMessage("Failed to fetch outfits.");
+        setShowNotification(true);
       } finally {
         setLoading(false);
       }
@@ -57,10 +62,18 @@ const Outfits = () => {
 
   const deleteOutfit = async (outfitId: string) => {
     const userId = sessionStorage.getItem("userId");
-    if (!userId) return;
+    if (!userId) {
+      setNotificationMessage("You must be logged in to delete an outfit.");
+      setShowNotification(true);
+      return;
+    }
 
     const confirmDelete = window.confirm("Are you sure you want to delete this outfit?");
-    if (!confirmDelete) return;
+    if (!confirmDelete) {
+      setNotificationMessage("Delete cancelled.");
+      setShowNotification(true);
+      return;
+    }
 
     try {
       const res = await fetch(
@@ -71,15 +84,24 @@ const Outfits = () => {
       if (res.ok) {
         setOutfits((prev) => prev.filter((o) => o.outfitId !== outfitId));
         setCurrentIndex(0);
-        alert("Outfit deleted successfully!");
+        setNotificationMessage("Outfit deleted successfully!");
       } else {
-        alert("Failed to delete outfit.");
+        setNotificationMessage("Failed to delete outfit.");
       }
     } catch (err) {
       console.error("Error deleting outfit", err);
-      alert("Error deleting outfit.");
+      setNotificationMessage("An error occurred while deleting the outfit.");
+    } finally {
+      setShowNotification(true);
     }
   };
+
+  useEffect(() => {
+    if (showNotification) {
+      const timer = setTimeout(() => setShowNotification(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showNotification]);
 
   const getPosition = (index: number) => {
     const position = (index - currentIndex + total) % total;
@@ -89,19 +111,23 @@ const Outfits = () => {
     return { scale: 0.7, zIndex: 1, opacity: 0 };
   };
 
-  if (loading) return <p className="text-center mt-10">Loading outfits...</p>;
-  if (outfits.length === 0)
-    return <p className="text-center mt-10">You haven’t created any outfits yet.</p>;
+  if (loading) {
+    return <p className="text-center mt-20 text-xl text-blue-900 font-semibold">Loading outfits...</p>;
+  }
+
+  if (outfits.length === 0) {
+    return <p className="text-center mt-20 text-lg text-gray-600">You haven’t created any outfits yet.</p>;
+  }
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center">
-      <h1 className="text-3xl font-bold mt-6 mb-2 text-blue-900">Your Outfits</h1>
+    <div className="relative w-full h-full flex flex-col items-center p-4 bg-blue-50 min-h-screen">
+      <h1 className="text-4xl font-bold mt-8 mb-4 text-blue-900 underline">Your Outfits</h1>
 
-      <div className="relative w-full max-w-[90%] h-[500px] flex items-center justify-center overflow-hidden mt-4">
+      <div className="relative w-full max-w-[90%] h-[550px] flex items-center justify-center overflow-hidden mt-6">
         {total > 1 && (
           <button
             onClick={moveLeft}
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-300 p-3 rounded-full shadow-md hover:bg-gray-400 transition z-20"
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-blue-800 text-yellow-300 p-4 rounded-full shadow-md hover:bg-blue-700 transition z-20"
           >
             {"<"}
           </button>
@@ -114,35 +140,34 @@ const Outfits = () => {
               return (
                 <motion.div
                   key={outfit.outfitId}
-                  className="absolute w-[300px] h-[440px] p-6 bg-white rounded-lg shadow-md transition-all duration-500 flex flex-col justify-between cursor-pointer"
+                  className="absolute w-[320px] h-[470px] p-6 bg-white rounded-xl shadow-2xl transition-all duration-500 flex flex-col justify-between hover:scale-105 cursor-pointer"
                   style={{ transform: `scale(${scale})`, zIndex, opacity }}
                 >
                   <div onClick={() => setSelectedOutfit(outfit)}>
-                    <h2 className="text-xl font-semibold text-center text-blue-900">
+                    <h2 className="text-2xl font-semibold text-center text-blue-800">
                       {outfit.name}
                     </h2>
-                    <p className="text-sm text-center text-gray-600 mb-2">
+                    <p className="text-sm text-center text-gray-500 mb-2">
                       {outfit.description}
                     </p>
                     {outfit.items?.[0] && (
                       <img
                         src={outfit.items[0].image || "/placeholder.png"}
                         alt="Preview"
-                        className="w-full h-[220px] object-cover rounded-md"
+                        className="w-full h-[230px] object-cover rounded-md mb-2"
                       />
                     )}
-                    <p className="text-xs text-gray-500 italic text-center mt-2">
+                    <p className="text-xs text-gray-400 italic text-center">
                       {outfit.items.length} item{outfit.items.length !== 1 && "s"}
                     </p>
                   </div>
 
-                  {/* Delete Button */}
                   <button
                     onClick={(e) => {
-                      e.stopPropagation(); // prevent opening modal on delete
+                      e.stopPropagation();
                       deleteOutfit(outfit.outfitId);
                     }}
-                    className="mt-4 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md transition w-full"
+                    className="mt-4 bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-lg transition w-full"
                   >
                     Delete Outfit
                   </button>
@@ -155,20 +180,20 @@ const Outfits = () => {
         {total > 1 && (
           <button
             onClick={moveRight}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-300 p-3 rounded-full shadow-md hover:bg-gray-400 transition z-20"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-800 text-yellow-300 p-4 rounded-full shadow-md hover:bg-blue-700 transition z-20"
           >
             {">"}
           </button>
         )}
 
-        <div className="absolute bottom-[-40px] flex gap-3 justify-center w-full z-10">
+        <div className="absolute bottom-[-50px] flex gap-3 justify-center w-full z-10">
           {outfits.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
               className={`w-4 h-4 rounded-full transition duration-300 border-2 ${
                 index === currentIndex
-                  ? "bg-blue-600 border-blue-800"
+                  ? "bg-yellow-300 border-blue-800"
                   : "bg-white border-gray-400"
               }`}
               aria-label={`Go to outfit ${index + 1}`}
@@ -181,6 +206,13 @@ const Outfits = () => {
         <OutfitModal
           outfit={selectedOutfit}
           onClose={() => setSelectedOutfit(null)}
+        />
+      )}
+
+      {showNotification && (
+        <Notification
+          message={notificationMessage}
+          onClose={() => setShowNotification(false)}
         />
       )}
     </div>

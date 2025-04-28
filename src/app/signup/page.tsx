@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // ✅ App Router
+import { useRouter } from "next/navigation";
 
 const Home = () => {
-  const router = useRouter(); // 👈 Initialize router
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,58 +23,70 @@ const Home = () => {
 
       const data = await res.json();
       if (res.ok) {
-        alert("Sign up successful!");
-        router.push("/"); 
+        setNotification({ type: "success", message: "Sign up successful!" });
+        setTimeout(() => router.push("/"), 1500); // redirect after showing message
       } else {
-        alert(data.error || "Something went wrong.");
+        setNotification({ type: "error", message: data.error || "Something went wrong." });
       }
     } catch (err) {
-      alert("Failed to submit form.");
       console.error(err);
+      setNotification({ type: "error", message: "Failed to submit form." });
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md border border-blue-200">
-        <h2 className="text-3xl font-bold text-blue-950 mb-6 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300 p-4">
+      <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-4 border-yellow-400 relative">
+        <h2 className="text-4xl font-extrabold text-blue-900 mb-6 text-center drop-shadow-md">
           Sign Up
         </h2>
 
-        <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
+        {notification && (
+          <div
+            className={`mb-4 p-4 rounded-md text-center font-semibold ${
+              notification.type === "success"
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {notification.message}
+          </div>
+        )}
+
+        <form className="flex flex-col space-y-5" onSubmit={handleSubmit}>
           <input
             type="text"
             name="username"
-            placeholder="Username"
+            placeholder="Enter your username"
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
           />
 
           <input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder="Enter your password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
           />
 
           <button
             type="submit"
-            className="bg-yellow-400 text-blue-950 font-semibold rounded-md py-2 mt-2 hover:bg-yellow-300 transition"
+            className="bg-yellow-400 text-blue-950 font-bold rounded-full py-2 mt-2 hover:bg-yellow-300 hover:scale-105 transform transition-all duration-300"
           >
-            Submit
+            Create Account
           </button>
         </form>
 
-        <div className="text-center mt-4">
-          <p className="text-sm">
+        <div className="text-center mt-6 text-gray-600 text-sm">
+          <p>
             Already have an account?{" "}
-            <a href="/" className="text-blue-600 hover:underline">
-              Log in
+            <a href="/" className="text-blue-600 hover:underline font-semibold">
+              Log In
             </a>
           </p>
         </div>

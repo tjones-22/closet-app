@@ -23,3 +23,11 @@ The application uses:
     npm install
 3. Start the server
     npm run dev
+
+
+## Resources
+
+- https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html
+- https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html
+- https://uiverse.io/ (took inspiration with some UI elements)
+
