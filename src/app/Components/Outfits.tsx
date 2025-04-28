@@ -55,6 +55,32 @@ const Outfits = () => {
     setCurrentIndex((prev) => (prev + 1) % total);
   };
 
+  const deleteOutfit = async (outfitId: string) => {
+    const userId = sessionStorage.getItem("userId");
+    if (!userId) return;
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this outfit?");
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(
+        `https://6ptjrzac72.execute-api.us-east-2.amazonaws.com/users/${userId}/outfits/${outfitId}`,
+        { method: "DELETE" }
+      );
+
+      if (res.ok) {
+        setOutfits((prev) => prev.filter((o) => o.outfitId !== outfitId));
+        setCurrentIndex(0);
+        alert("Outfit deleted successfully!");
+      } else {
+        alert("Failed to delete outfit.");
+      }
+    } catch (err) {
+      console.error("Error deleting outfit", err);
+      alert("Error deleting outfit.");
+    }
+  };
+
   const getPosition = (index: number) => {
     const position = (index - currentIndex + total) % total;
     if (position === 0) return { scale: 1.1, zIndex: 10, opacity: 1 };
@@ -88,26 +114,38 @@ const Outfits = () => {
               return (
                 <motion.div
                   key={outfit.outfitId}
-                  className="absolute w-[300px] h-[400px] p-6 bg-white rounded-lg shadow-md transition-all duration-500 cursor-pointer"
+                  className="absolute w-[300px] h-[440px] p-6 bg-white rounded-lg shadow-md transition-all duration-500 flex flex-col justify-between cursor-pointer"
                   style={{ transform: `scale(${scale})`, zIndex, opacity }}
-                  onClick={() => setSelectedOutfit(outfit)}
                 >
-                  <h2 className="text-xl font-semibold text-center text-blue-900">
-                    {outfit.name}
-                  </h2>
-                  <p className="text-sm text-center text-gray-600 mb-2">
-                    {outfit.description}
-                  </p>
-                  {outfit.items?.[0] && (
-                    <img
-                      src={outfit.items[0].image || "/placeholder.png"}
-                      alt="Preview"
-                      className="w-full h-[220px] object-cover rounded-md"
-                    />
-                  )}
-                  <p className="text-xs text-gray-500 italic text-center mt-2">
-                    {outfit.items.length} item{outfit.items.length !== 1 && "s"}
-                  </p>
+                  <div onClick={() => setSelectedOutfit(outfit)}>
+                    <h2 className="text-xl font-semibold text-center text-blue-900">
+                      {outfit.name}
+                    </h2>
+                    <p className="text-sm text-center text-gray-600 mb-2">
+                      {outfit.description}
+                    </p>
+                    {outfit.items?.[0] && (
+                      <img
+                        src={outfit.items[0].image || "/placeholder.png"}
+                        alt="Preview"
+                        className="w-full h-[220px] object-cover rounded-md"
+                      />
+                    )}
+                    <p className="text-xs text-gray-500 italic text-center mt-2">
+                      {outfit.items.length} item{outfit.items.length !== 1 && "s"}
+                    </p>
+                  </div>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent opening modal on delete
+                      deleteOutfit(outfit.outfitId);
+                    }}
+                    className="mt-4 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md transition w-full"
+                  >
+                    Delete Outfit
+                  </button>
                 </motion.div>
               );
             })}

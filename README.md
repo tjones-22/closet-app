@@ -23,4 +23,3 @@ The application uses:
     npm install
 3. Start the server
     npm run dev
-4. http://localhost:3000
