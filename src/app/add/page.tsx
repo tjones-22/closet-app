@@ -89,13 +89,7 @@ const Home = () => {
 
   return (
     <>
-      <Head>
-        <title>Add New Item - Closet App</title>
-        <meta
-          name="description"
-          content="Easily add a new item to your closet."
-        />
-      </Head>
+      
 
       {loading ? (
         <Loader />

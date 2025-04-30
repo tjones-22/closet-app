@@ -8,12 +8,12 @@ const dom = new JSDOM(`<!DOCTYPE html><html><body></body></html>`);
 global.window = dom.window;
 global.document = dom.window.document;
 
-// Mock alert
+
 let alertMessage = "";
 global.alert = (msg) => {
   alertMessage = msg;
 };
-// Your showSelection function
+
 function showSelection() {
   let choices = document.getElementsByName("choice");
   let quantityElement = document.getElementsByName('quantity')[0];

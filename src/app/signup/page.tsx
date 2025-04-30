@@ -42,10 +42,7 @@ const Home = () => {
 
   return (
     <>
-      <Head>
-        <title>Sign up - Closet App</title>
-        <meta name="description" content="Create an account and start creating your closet" />
-      </Head>
+      
 
       {loading ? (
         <Loader />

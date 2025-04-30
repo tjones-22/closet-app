@@ -18,10 +18,17 @@ const ClosetItems = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [showNotification, setShowNotification] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
-    if (!userId) return;
+    if (!userId) {
+      setIsLoggedIn(false);
+      setNotificationMessage("You must be logged in to view closet items.");
+      setShowNotification(true);
+      setLoading(false);
+      return;
+    }
 
     const fetchItems = async () => {
       try {
@@ -42,12 +49,16 @@ const ClosetItems = () => {
     fetchItems();
   }, []);
 
+  const total = items.length;
+
   const moveLeft = () => {
-    setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
+    if (!isLoggedIn) return;
+    setCurrentIndex((prev) => (prev - 1 + total) % total);
   };
 
   const moveRight = () => {
-    setCurrentIndex((prev) => (prev + 1) % items.length);
+    if (!isLoggedIn) return;
+    setCurrentIndex((prev) => (prev + 1) % total);
   };
 
   const deleteItem = async (itemId: string) => {
@@ -68,7 +79,7 @@ const ClosetItems = () => {
       );
 
       if (res.ok) {
-        setItems((prev) => prev.filter((item) => item.itemId !== itemId));
+        setItems((prev) => prev.filter((i) => i.itemId !== itemId));
         setCurrentIndex(0);
         setNotificationMessage("Item deleted successfully!");
       } else {
@@ -82,10 +93,17 @@ const ClosetItems = () => {
     }
   };
 
+  useEffect(() => {
+    if (showNotification) {
+      const timer = setTimeout(() => setShowNotification(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showNotification]);
+
   const getPosition = (index: number) => {
-    const position = (index - currentIndex + items.length) % items.length;
-    if (position === 0) return { scale: 1.2, zIndex: 10, opacity: 1 };
-    if (position === 1 || position === items.length - 1)
+    const position = (index - currentIndex + total) % total;
+    if (position === 0) return { scale: 1.1, zIndex: 10, opacity: 1 };
+    if (position === 1 || position === total - 1)
       return { scale: 0.9, zIndex: 5, opacity: 0.8 };
     return { scale: 0.7, zIndex: 1, opacity: 0 };
   };
@@ -94,6 +112,14 @@ const ClosetItems = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-blue-50">
         <p className="text-2xl font-bold text-blue-800 animate-pulse">Loading closet items...</p>
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-blue-50">
+        <p className="text-xl font-semibold text-red-600">You must be logged in to view closet items.</p>
       </div>
     );
   }
@@ -108,15 +134,13 @@ const ClosetItems = () => {
 
   return (
     <div className="relative w-full h-full flex flex-col items-center px-6 py-8 bg-blue-50 min-h-screen">
-      <h1 className="text-4xl font-extrabold text-blue-900 underline mb-8">
-        Your Closet
-      </h1>
+      <h1 className="text-4xl font-extrabold text-blue-900 underline mb-8">Your Closet</h1>
 
       <div className="relative w-full max-w-5xl h-[550px] flex items-center justify-center overflow-hidden mt-6">
-        {items.length > 1 && (
+        {total > 1 && (
           <button
             onClick={moveLeft}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-blue-900 text-yellow-300 p-3 rounded-full hover:bg-blue-700 shadow-md transition"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-blue-900 text-yellow-300 p-3 rounded-full hover:bg-blue-700 shadow-md transition z-20"
           >
             {"<"}
           </button>
@@ -141,12 +165,8 @@ const ClosetItems = () => {
                     <h2 className="text-xl font-bold text-center text-blue-800">
                       {item.type.toUpperCase()}
                     </h2>
-                    <p className="text-center text-gray-600 text-sm mt-2">
-                      Color: {item.color}
-                    </p>
-                    <p className="text-center text-gray-600 text-sm">
-                      Occasion: {item.occasion}
-                    </p>
+                    <p className="text-center text-gray-600 text-sm mt-2">Color: {item.color}</p>
+                    <p className="text-center text-gray-600 text-sm">Occasion: {item.occasion}</p>
                   </div>
 
                   <button
@@ -161,16 +181,16 @@ const ClosetItems = () => {
           </AnimatePresence>
         </div>
 
-        {items.length > 1 && (
+        {total > 1 && (
           <button
             onClick={moveRight}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-blue-900 text-yellow-300 p-3 rounded-full hover:bg-blue-700 shadow-md transition"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-blue-900 text-yellow-300 p-3 rounded-full hover:bg-blue-700 shadow-md transition z-20"
           >
             {">"}
           </button>
         )}
 
-        <div className="absolute bottom-[-50px] flex gap-2 justify-center w-full">
+        <div className="absolute bottom-[-50px] flex gap-2 justify-center w-full z-10">
           {items.map((_, index) => (
             <button
               key={index}

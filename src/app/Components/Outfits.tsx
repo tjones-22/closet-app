@@ -26,10 +26,17 @@ const Outfits = () => {
   const [selectedOutfit, setSelectedOutfit] = useState<Outfit | null>(null);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [showNotification, setShowNotification] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
-    if (!userId) return;
+    if (!userId) {
+      setIsLoggedIn(false);
+      setNotificationMessage("You must be logged in to view outfits.");
+      setShowNotification(true);
+      setLoading(false);
+      return;
+    }
 
     const fetchOutfits = async () => {
       try {
@@ -53,10 +60,12 @@ const Outfits = () => {
   const total = outfits.length;
 
   const moveLeft = () => {
+    if (!isLoggedIn) return;
     setCurrentIndex((prev) => (prev - 1 + total) % total);
   };
 
   const moveRight = () => {
+    if (!isLoggedIn) return;
     setCurrentIndex((prev) => (prev + 1) % total);
   };
 
@@ -69,11 +78,7 @@ const Outfits = () => {
     }
 
     const confirmDelete = window.confirm("Are you sure you want to delete this outfit?");
-    if (!confirmDelete) {
-      setNotificationMessage("Delete cancelled.");
-      setShowNotification(true);
-      return;
-    }
+    if (!confirmDelete) return;
 
     try {
       const res = await fetch(
@@ -113,6 +118,10 @@ const Outfits = () => {
 
   if (loading) {
     return <p className="text-center mt-20 text-xl text-blue-900 font-semibold">Loading outfits...</p>;
+  }
+
+  if (!isLoggedIn) {
+    return <p className="text-center mt-20 text-lg text-red-600 font-semibold">You must be logged in to view outfits.</p>;
   }
 
   if (outfits.length === 0) {

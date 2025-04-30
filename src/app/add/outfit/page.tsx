@@ -130,10 +130,7 @@ const Home = () => {
 
   return (
     <>
-      <Head>
-        <title>Outfit Maker - Closet App</title>
-        <meta name="description" content="Easily create a new Outfit from your closet items" />
-      </Head>
+     
 
       {loading ? (
         <Loader />

@@ -30,4 +30,5 @@ The application uses:
 - https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html
 - https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html
 - https://uiverse.io/ (took inspiration with some UI elements)
-
+- https://www.youtube.com/watch?v=bXf_UdyDzSA
+- https://www.geeksforgeeks.org/node-js-crypto-randomuuid-function/
