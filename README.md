@@ -24,7 +24,9 @@ The application uses:
 3. Start the server
     npm run dev
 
+## Reflection
 
+I really enjoyed working on this project. It was fun to turn an idea into an application. It got hard and had to use outside resources to figure out how to make sure I can upload images to the database. Haven't done much with AWS so looking back at the previous lab we did and reading some documentation for the AWS lambda helped me get my API going. One of my hardest parts was a CORS error. With all the tabs and defining parts of the route in different places, I got mixed up with what right HTTP method I was supposed to be calling for adding closet outfits. There is still more to this project that can be done to make it better but for now this project is done.
 ## Resources
 
 - https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-dynamo-db.html

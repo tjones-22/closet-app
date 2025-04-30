@@ -36,7 +36,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
       ),
     ];
     setOptions(unique);
-    setValue(""); // reset value
+    setValue(""); 
   }, [category, closetItems]);
 
   const handleApply = () => {

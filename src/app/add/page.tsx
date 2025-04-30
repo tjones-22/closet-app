@@ -5,7 +5,7 @@ import Link from "next/link";
 import Head from "next/head";
 import { useRef, useState } from "react";
 import Notification from "@/app/Components/Notification";
-import Loader from "@/app/Components/Loader"; // 👈 Import Loader
+import Loader from "@/app/Components/Loader";
 
 const Home = () => {
   const [loading, setLoading] = useState(false);

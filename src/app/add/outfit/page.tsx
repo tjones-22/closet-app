@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import FilterModal from "@/app/Components/FilterModal";
 import OutfitCard from "@/app/Components/OutfitCard";
 import Notification from "@/app/Components/Notification";
-import Loader from "@/app/Components/Loader"; // 👈 Import Loader
+import Loader from "@/app/Components/Loader"; 
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,7 +17,7 @@ const Home = () => {
   const [outfitDescription, setOutfitDescription] = useState("");
   const [notificationMessage, setNotificationMessage] = useState("");
   const [showNotification, setShowNotification] = useState(false);
-  const [loading, setLoading] = useState(true); // 👈 Loading state for page
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");

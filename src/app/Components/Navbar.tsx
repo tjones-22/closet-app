@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import Notification from "./Notification"; // ✅ Make sure you import it
+import Notification from "./Notification"; 
 
 const Navbar = () => {
   const [username, setUsername] = useState("");
