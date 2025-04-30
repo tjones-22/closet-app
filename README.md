@@ -34,3 +34,6 @@ I really enjoyed working on this project. It was fun to turn an idea into an app
 - https://uiverse.io/ (took inspiration with some UI elements)
 - https://www.youtube.com/watch?v=bXf_UdyDzSA
 - https://www.geeksforgeeks.org/node-js-crypto-randomuuid-function/
+- https://refine.dev/blog/framer-motion/#setting-up-framer-motion-in-react
+- https://www.typescriptlang.org/docs/handbook/2/objects.html
+
